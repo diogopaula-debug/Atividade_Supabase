@@ -1,0 +1,578 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja | Cadastro e Carrinho</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #263238;
+        }
+
+        header {
+            background: #263c5a;
+            color: white;
+            padding: 25px 8%;
+        }
+
+        header h1 {
+            font-size: 27px;
+        }
+
+        header p {
+            margin-top: 7px;
+            color: #dce5f0;
+        }
+
+        main {
+            width: 85%;
+            max-width: 1100px;
+            margin: 35px auto;
+        }
+
+        section {
+            background: white;
+            padding: 28px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            color: #263c5a;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd3dc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4169a1;
+        }
+
+        button {
+            background: #315b91;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #23436e;
+        }
+
+        .btn-remover {
+            background: #c0392b;
+            padding: 8px 12px;
+        }
+
+        .btn-remover:hover {
+            background: #922b21;
+        }
+
+        .mensagem {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .sucesso {
+            color: #218838;
+        }
+
+        .erro {
+            color: #c0392b;
+        }
+
+        .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .tabela-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e2e6eb;
+            text-align: left;
+        }
+
+        th {
+            background: #eef2f7;
+            color: #263c5a;
+        }
+
+        .total {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 21px;
+            font-weight: bold;
+            color: #263c5a;
+        }
+
+        .vazio {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        @media (max-width: 650px) {
+            main {
+                width: 92%;
+            }
+
+            .linha {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Minha Loja</h1>
+    <p>Cadastro de clientes e carrinho de compras</p>
+</header>
+
+<main>
+
+    <!-- CADASTRO DE CLIENTES -->
+    <section>
+        <h2>Cadastro de Clientes</h2>
+
+        <form id="formCliente">
+
+            <div class="form-group">
+                <label for="nome">Nome completo</label>
+                <input type="text" id="nome" placeholder="Digite o nome do cliente" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="Digite o e-mail" required>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone">Telefone (opcional)</label>
+                <input type="tel" id="telefone" placeholder="Digite o telefone">
+            </div>
+
+            <button type="submit">Cadastrar Cliente</button>
+
+            <p id="mensagemCliente" class="mensagem"></p>
+
+        </form>
+    </section>
+
+    <!-- CARRINHO -->
+    <section>
+        <h2>Carrinho de Compras</h2>
+
+        <div class="form-group">
+            <label for="cliente">Selecionar Cliente</label>
+            <select id="cliente">
+                <option value="">Selecione um cliente</option>
+            </select>
+        </div>
+
+        <div class="linha">
+
+            <div class="form-group">
+                <label for="produto">Selecionar Produto</label>
+                <select id="produto">
+                    <option value="">Selecione um produto</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantidade">Quantidade</label>
+                <input type="number" id="quantidade" min="1" value="1">
+            </div>
+
+        </div>
+
+        <button type="button" onclick="adicionarCarrinho()">
+            Adicionar ao Carrinho
+        </button>
+
+        <p id="mensagemCarrinho" class="mensagem"></p>
+
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço Unitário</th>
+                        <th>Subtotal</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaCarrinho">
+                    <tr>
+                        <td colspan="5" class="vazio">
+                            Selecione um cliente para consultar o carrinho.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="total">
+            Total: R$ <span id="valorTotal">0,00</span>
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+    /*
+       INTEGRAÇÃO COM O FLASK
+
+       Os endereços abaixo são exemplos de rotas.
+       Ajuste-os conforme as rotas que já existem no seu app.py.
+    */
+
+    const formCliente = document.getElementById("formCliente");
+
+    // CADASTRAR CLIENTE
+    formCliente.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const dados = {
+            nome: document.getElementById("nome").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            telefone: document.getElementById("telefone").value.trim()
+        };
+
+        const mensagem = document.getElementById("mensagemCliente");
+
+        if (!dados.nome || !dados.email) {
+            mensagem.textContent = "Preencha o nome e o e-mail.";
+            mensagem.className = "mensagem erro";
+            return;
+        }
+
+        try {
+            const resposta = await fetch("/clientes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(resultado.erro || resultado.mensagem || "Erro ao cadastrar cliente.");
+            }
+
+            mensagem.textContent = resultado.mensagem || "Cliente cadastrado com sucesso!";
+            mensagem.className = "mensagem sucesso";
+
+            formCliente.reset();
+
+            carregarClientes();
+
+        } catch (erro) {
+            mensagem.textContent = erro.message;
+            mensagem.className = "mensagem erro";
+        }
+    });
+
+
+    // CARREGAR CLIENTES
+    async function carregarClientes() {
+        try {
+            const resposta = await fetch("/clientes");
+
+            if (!resposta.ok) {
+                throw new Error("Não foi possível carregar os clientes.");
+            }
+
+            const clientes = await resposta.json();
+
+            const select = document.getElementById("cliente");
+
+            select.innerHTML = '<option value="">Selecione um cliente</option>';
+
+            clientes.forEach(cliente => {
+                const opcao = document.createElement("option");
+
+                opcao.value = cliente.id;
+                opcao.textContent = cliente.nome;
+
+                select.appendChild(opcao);
+            });
+
+        } catch (erro) {
+            console.error(erro);
+        }
+    }
+
+
+    // CARREGAR PRODUTOS
+    async function carregarProdutos() {
+        try {
+            const resposta = await fetch("/produtos");
+
+            if (!resposta.ok) {
+                throw new Error("Não foi possível carregar os produtos.");
+            }
+
+            const produtos = await resposta.json();
+
+            const select = document.getElementById("produto");
+
+            select.innerHTML = '<option value="">Selecione um produto</option>';
+
+            produtos.forEach(produto => {
+                const opcao = document.createElement("option");
+
+                opcao.value = produto.id;
+                opcao.textContent = produto.nome + " - R$ " +
+                    Number(produto.preco).toFixed(2).replace(".", ",");
+
+                select.appendChild(opcao);
+            });
+
+        } catch (erro) {
+            console.error(erro);
+        }
+    }
+
+
+    // ADICIONAR PRODUTO AO CARRINHO
+    async function adicionarCarrinho() {
+
+        const cliente = document.getElementById("cliente").value;
+        const produto = document.getElementById("produto").value;
+        const quantidade = Number(document.getElementById("quantidade").value);
+
+        const mensagem = document.getElementById("mensagemCarrinho");
+
+        if (!cliente || !produto) {
+            mensagem.textContent = "Selecione um cliente e um produto.";
+            mensagem.className = "mensagem erro";
+            return;
+        }
+
+        if (!Number.isInteger(quantidade) || quantidade <= 0) {
+            mensagem.textContent = "Informe uma quantidade maior que zero.";
+            mensagem.className = "mensagem erro";
+            return;
+        }
+
+        try {
+            const resposta = await fetch("/carrinho", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    cliente_id: cliente,
+                    produto_id: produto,
+                    quantidade: quantidade
+                })
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    resultado.erro || resultado.mensagem ||
+                    "Não foi possível adicionar o produto."
+                );
+            }
+
+            mensagem.textContent = resultado.mensagem || "Produto adicionado ao carrinho!";
+            mensagem.className = "mensagem sucesso";
+
+            carregarCarrinho();
+
+        } catch (erro) {
+            mensagem.textContent = erro.message;
+            mensagem.className = "mensagem erro";
+        }
+    }
+
+
+    // LISTAR CARRINHO
+    async function carregarCarrinho() {
+
+        const cliente = document.getElementById("cliente").value;
+        const lista = document.getElementById("listaCarrinho");
+
+        if (!cliente) {
+            lista.innerHTML = `
+                <tr>
+                    <td colspan="5" class="vazio">
+                        Selecione um cliente para consultar o carrinho.
+                    </td>
+                </tr>
+            `;
+
+            document.getElementById("valorTotal").textContent = "0,00";
+            return;
+        }
+
+        try {
+            const resposta = await fetch(`/carrinho/${cliente}`);
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao carregar o carrinho.");
+            }
+
+            const dados = await resposta.json();
+
+            lista.innerHTML = "";
+
+            let total = 0;
+
+            if (dados.length === 0) {
+                lista.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="vazio">
+                            Nenhum produto adicionado ao carrinho.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            dados.forEach(item => {
+
+                const subtotal = Number(item.preco) * Number(item.quantidade);
+
+                total += subtotal;
+
+                const linha = document.createElement("tr");
+
+                const nome = document.createElement("td");
+                nome.textContent = item.nome;
+
+                const qtd = document.createElement("td");
+                qtd.textContent = item.quantidade;
+
+                const preco = document.createElement("td");
+                preco.textContent = "R$ " + Number(item.preco).toFixed(2).replace(".", ",");
+
+                const sub = document.createElement("td");
+                sub.textContent = "R$ " + subtotal.toFixed(2).replace(".", ",");
+
+                const acao = document.createElement("td");
+
+                const botao = document.createElement("button");
+                botao.textContent = "Remover";
+                botao.className = "btn-remover";
+                botao.onclick = () => removerItem(item.id);
+
+                acao.appendChild(botao);
+
+                linha.append(nome, qtd, preco, sub, acao);
+
+                lista.appendChild(linha);
+            });
+
+            document.getElementById("valorTotal").textContent =
+                total.toFixed(2).replace(".", ",");
+
+        } catch (erro) {
+            lista.innerHTML = `
+                <tr>
+                    <td colspan="5" class="vazio">
+                        ${erro.message}
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+
+    // REMOVER ITEM DO CARRINHO
+    async function removerItem(id) {
+
+        try {
+            const resposta = await fetch(`/carrinho/${id}`, {
+                method: "DELETE"
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(resultado.erro || resultado.mensagem || "Erro ao remover item.");
+            }
+
+            document.getElementById("mensagemCarrinho").textContent =
+                resultado.mensagem || "Produto removido com sucesso!";
+
+            document.getElementById("mensagemCarrinho").className =
+                "mensagem sucesso";
+
+            carregarCarrinho();
+
+        } catch (erro) {
+            document.getElementById("mensagemCarrinho").textContent = erro.message;
+            document.getElementById("mensagemCarrinho").className = "mensagem erro";
+        }
+    }
+
+
+    // QUANDO TROCAR O CLIENTE, ATUALIZAR O CARRINHO
+    document.getElementById("cliente").addEventListener("change", carregarCarrinho);
+
+
+    // CARREGAMENTO INICIAL
+    carregarClientes();
+    carregarProdutos();
+
+</script>
+
+</body>
+</html>
+```
